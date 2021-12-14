@@ -1,6 +1,7 @@
 # TP NGS elimination
 
 REMEMBER ROMANE: quand on crée script toujours mettre .sh à la fin
+on s'interesse a sequencer a diff temps pr voir elimination du genome, sequence a etapes 1 cell 5 et 8 cells...
 
 _recuperer les données séquencées sur site de IGFL: scripts/datadownload.sh
 _déplacer les data séquencées de Fastq_files dans un nouveau dossier fastq_files: data/ fastq_files 
