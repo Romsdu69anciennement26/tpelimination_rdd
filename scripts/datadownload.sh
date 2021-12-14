@@ -1,0 +1,1 @@
+wget -r -nH --user='igfl-UE_NGS_2021' --password='UE_NGS_2021'  ftp://sharegate-igfl.ens-lyon.fr/ -P data/
