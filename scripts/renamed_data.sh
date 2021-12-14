@@ -11,3 +11,4 @@ mv Lib6_62_21_S6_R1_001.fastq.gz 4c_3.fastq.gz
 mv Lib7_62_21_S7_R1_001.fastq.gz 8c_1.fastq.gz
 mv Lib8_62-21_S8_R1_001.fastq.gz 8c_2.fastq.gz
 mv Lib9_62_21_S9_R1_001.fastq.gz 8c_+5_2.fastq.gz
+#changer les noms de nos data
