@@ -4,3 +4,5 @@
 .Ruserdata
 tpelimination_rdd.Rproj
 data
+intermediary*
+*results*
