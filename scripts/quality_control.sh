@@ -9,3 +9,6 @@ do
   echo $FASTQ_GZ_PREFIX
   fastqc $FASTQ_GZ_FILES -o intermediary_results/raw_quality -t 7
 done
+ 
+#intégrer fastqc dans la boucle apres avoir enleve les suffixes de nos noms de fichiers
+#utilsier echo devant fasqc pour tester si ca marche bien puis l'enlever et RUN
