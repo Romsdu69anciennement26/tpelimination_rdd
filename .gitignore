@@ -6,3 +6,6 @@ tpelimination_rdd.Rproj
 data
 intermediary*
 *results*
+scripts/analyse_R.Rmd-.html
+scripts/analyse_R.html
+scripts/analyse_R_files/
