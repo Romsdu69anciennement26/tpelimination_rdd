@@ -7,7 +7,7 @@ sample_ID	sample_name	age	timing	elimination
 4c_3	4c 3	4c	during	yes
 8c_1	8c 1	8c	during	yes
 8c_2	8c 2	8c	during	yes
-8c_+5_2	8c +5 2	8c_5	after	yes
-8c_+5_3	8c +5 3	8c_5	after	yes
-8c_+7_1	8c +7 1	8c_7	after	yes
-8c_+7_4	8c +7 4	8c_7	after	yes
+8c_+5_2	8c +5 2	8c_5	after	no
+8c_+5_3	8c +5 3	8c_5	after	no
+8c_+7_1	8c +7 1	8c_7	after	no
+8c_+7_4	8c +7 4	8c_7	after	no
