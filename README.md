@@ -2,7 +2,7 @@
 
 TP NGS 2021: genome elimination in Mesorhabditis belari.
 
-#Biological context
+# Biological context
 
 The nematode Mesorhabditis belari is one of several organisms showing a particularly interesting process called "genome elimination". This phenomenon consists of a programmed elimination of the genome during embryonic development that occurs in five events, always in somatic cells, and between cell stages 2 and 15. The part of the genome that is eliminated in somatic cells is always the same and mainly codes for repeated sequences. Thus, a potential explanation for this phenomenon could be that it regulates the expression of repeated elements, but this remains to be studied. 
 
@@ -11,34 +11,40 @@ Because the genes involved in this genome silencing are not yet known, the proje
 For this purpose, M.belari embryos were sorted according to different developmental stages, the 1 and 2 cell stage before elimination, 4 and 8 cells during elimination, and 8 cells + 5h (about 60 cells) and 8 cells + 7h (about 100 cells) after elimination
 The mRNAs were extracted from each of the embryos and duplicates were made for each of the six stages producing a total of 12 samples. These 12 samples were then sequenced by Illumina and mapped to the M.belari reference transcriptome.
 
-#File organization
+# File organization
 
-This project is organized in 4 directories: data, intermediary_results, results, scripts.
-
+This project is organized in 4 directories: data, intermediary_results, results, scripts:
 
 -> data: contains raw FastQ files obtained from the 12 samples sequencing
 results: not linked to Git
-
 -> intermediary results: contains the index construction from the reference genome, the quality analysis of the raw sequences, the trimming reports and the trimmed samples sequences 
-
 -> results: contains the results from the Kallisto mapping (quantification) 
-
 -> scripts: contains the different detailed scripts used for our analysis
 
 # Timeline of the analysis
 
 ## Preprocessing data: cleaning data for the pseudo-mapping
 
-_retrieving the sequenced reads from IGFL site which are in fastQ format
-_rename the obtained sequences with simpler names: scripts/renamed_data.sh
-_simplifier nom des fichiers en enlevant fastq.gz à la fin et analyser qualité des données avec fastQC: scripts/quality_control.sh
-_en regardant fastq des données on a vu chute de qualité vers 80 reads donc on nettoie les données avec fastp pour s'arreter à 80 : scripts/cleaning_the_reads.sh
-pas besoin de relancer fastqc apres fastp car il genere deja controle qualite
-_on regarde nos données nettoyées: on est bien en %GC : bonnes données donc on passe au mapping
-_pour kalisto pseudo mapping: recuperer les fichiers FASTA des CDS de belari sur wormbase: scripts/download_fasta_CDS_belari_for_mapping.sh
-_indexer fichier fasta pour pouvoir faire la quantif : scripts/fastafiles_indexed.sh
-_quantification: changer len 522 sd 200 et enlever boostrap mais laisser bias 
-_lancer kallisto: aligne sur les cds et recup pr chacun des echant une table qui asso nmbre de compte par genes 
+_retrieving the data: retrieved from IGFL site, sequenced reads were in fastQ format: scripts/datadownload.sh
+
+_renaming the data: sequenced data names were unclear so they were renamed with simpler names: scripts/renamed_data.sh. The  Fastq files were copied in the intermediary_results directory under more informative names.
+
+_qualitity analysis: using fastQC: scripts/quality_control.sh. The results show that the data are of good quality except at the end, so the reads will be trimmed and kept to 80bp for further analysis. The GC percentage shows a multimodal distribution which is unusual but will not prevent further analysis.
+
+_cleaning the data: looking at fastq data we saw quality drop around 80 reads so data were cleaned with fastp to stop at 80: scripts/cleaning_the_reads.sh
+NB: no need to restart fastqc after fastp as it already generates quality control
+
+_quality analysis post-cleaning: the reports of all samples were aggregated in one reader-friendly file using the multiqc method.
+
+_Index building for pseudomapping of the sample reads: The first step was to import the annotated M.belari DNA Coding Sequences (CDS) from the WormBase Parasite database:scripts/download_fasta_CDS_belari_for_mapping.sh. The annoted coding sequences (cds) will be used for the index construction.
+
+_index constrution: construction of a transcription index using kallisto. The index is based on cds (coding sequences) of M.belari, and will be used for the pseudomapping of the samples read : scripts/fastafiles_indexed.sh
+
+Quantification running: 
+_pseudomapping: Each sample was pseudomapped to the index constructed using kallisto, reads were taken at one end. Arbitrary lengths and standard deviation were first provided based on the sequencing quality analysis. We finally chose a fragment length of 552 and a standard deviation of 200, based on the sequencing report of the Illumina data from IGFL: scripts/quantification.sh
+
+_aggregating report: The pseudo-mapping data from each sample was aggregated into a single file: scripts/aggregated_results.sh. By analyzing the aggregation ratio, a low mapping ratio (less than 30%) was measured. Several hypotheses explaining this phenomenon have been ruled out (such as potential contamination or a poorly annotated genome) but it is possible that the Kallisto parameters themselves impact on the mapping ratio.
+
 
 # JOUR 2
 
