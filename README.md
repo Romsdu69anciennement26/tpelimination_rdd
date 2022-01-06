@@ -46,7 +46,7 @@ _pseudomapping: Each sample was pseudomapped to the index constructed using kall
 
 _aggregating: The pseudo-mapping data from each sample was aggregated into a single file: scripts/aggregated_results.sh. By analyzing the aggregation ratio, a low mapping ratio (less than 30%) was measured. Several hypotheses explaining this phenomenon have been ruled out (such as potential contamination or a poorly annotated genome) but it is possible that the Kallisto parameters themselves impact on the mapping ratio.
 
-### Count matrix: 
+## Count matrix: 
 
 We created a count matrix, summarizing the number of fragments attributed to each gene for each sample.  
 
