@@ -17,8 +17,11 @@ This project is organized in 4 directories: data, intermediary_results, results,
 
 -> data: contains raw FastQ files obtained from the 12 samples sequencing
 results: not linked to Git
+
 -> intermediary_results: contains the index construction from the reference genome, the quality analysis of the raw sequences, the trimming reports and the trimmed samples sequences 
+
 -> results: contains the results from the Kallisto mapping (quantification) 
+
 -> scripts: contains the different detailed scripts used for our analysis
 
 # Timeline of the analysis
