@@ -1,0 +1,195 @@
+---
+title: "TP NGS"
+author: "Romane"
+date: "15/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown 
+
+##count matrix analysis
+
+## build the metadata = coldata
+
+```{r}
+library(tidyverse)
+
+sampleTable = read_delim("metadata.tsv") %>% as.data.frame()
+rownames(sampleTable) = sampleTable$sample_ID
+sampleTable
+```
+
+## import data with tximport
+
+```{r}
+library(tximport)
+
+dir <- "/home/rstudio/mydatalocal/tpelimination_rdd/results/quantification/"
+samples <- list.dirs(dir, full.names = F) 
+samples <- samples[samples != ""] # remove "." directory
+
+samples_names <- rownames(sampleTable)
+
+files <- file.path(dir, samples_names, "abundance.h5")
+names(files) <- samples_names
+files[!file.exists(files)]
+
+txi.kallisto.tmp <- tximport(files[1], type = "kallisto", txOut = TRUE)
+
+transcript_names <- rownames(txi.kallisto.tmp$abundance)
+tx2gene <- data.frame(tx=transcript_names,
+                  gene=gsub(".t[0-9]*","",transcript_names))
+txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
+```
+#regarde ce que ca donne 
+```{r}
+txi.kallisto
+```
+
+##differential expression analysis
+### build the DESeq2 object
+
+
+```{r}
+library(DESeq2)
+
+
+dds <- DESeqDataSetFromTximport(txi.kallisto, sampleTable, ~ elimination )
+dds <- DESeq(dds)
+vsd <- vst(dds, blind=FALSE)
+```
+
+
+
+###build PCA
+
+```{r}
+plotPCA(vsd, intgroup=c("age"))
+```
+## Further analysis
+
+```{r}
+res <-results(dds)
+```
+
+
+
+```{r}
+resultsNames(dds)
+```
+
+
+```{r}
+plotMA(res, ylim=c(-30,30))
+```
+comment on identifie chaque point = gene dans ce plot ?
+
+####d'abord on fait tableau de ces info pour y voir plus clair
+
+```{r}
+res_df  <- as.data.frame(res) 
+head(res_df)
+```
+au dessus:  on essaye d'isoler des subset de genes : les + exprimés, les - exprimés : aud essus on a  les + downregulés
+et en dessous on a un autre subset : Head cest pur avoir 20premiers 
+
+```{r}
+subset(res_df, log2FoldChange > 20 & baseMean > 10 & padj < 0.05)
+```
+
+###summary of the results
+Savoir cbien de genes significatifs on a 
+
+```{r}
+summary(res)
+```
+##afficher expression des genes 
+en savoir plus sur ces genes : faire express en fct temps et voir si cloche au moment elimination et apres savoir a quoi ils correpsodnent : prot qui ont un domn en commun… utilise plotcont 
+ 
+```{r}
+plot_counts <- function(X) {
+count_df <- counts(dds, normalized=T)
+count_dfl = count_df %>% as.data.frame() %>%  rownames_to_column("gene_ID") %>% pivot_longer(-gene_ID,names_to = "sample_ID", values_to = "norm_counts")
+
+
+df_tmp = subset(count_dfl, gene_ID %in% X) %>% left_join(sampleTable)
+
+df_tmp <- df_tmp %>% mutate(age = factor(age, levels = unique(age)),
+                            gene_ID = factor(gene_ID,levels=X))
+
+
+ggplot(df_tmp, aes(x=age, y = norm_counts, col = age)) + theme_bw() +
+  geom_point() +
+  facet_wrap(~gene_ID, scales = "free_y" ) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+}
+```
+
+pour utiliser ca on utilise gen_list avec cette fct de code on prend tableau qui pr chacun gene donne valeur d'expression moyenne a trav echant et donne logfold (changmnt entre elimi ou pas elim) et p value 
+et susbet : on va selectionner certn genes dans tout ca : donc ici superieur a -20 et basemean sup a 10 : donne un objet qui fait plus que 57 lignes = subset des elements significatifs  
+
+```{r fig.height=14, fig.width=14}
+genes_list = subset(res_df, log2FoldChange < -20 & baseMean > 10 & padj < 0.05) %>% rownames_to_column("gene_ID")
+genes_list$gene_ID
+
+plot_counts(genes_list$gene_ID)
+```
+#faire des substet parmi les genes (logfold change basemean pvalue)
+Changer dans settings la taille des figures "use custom figure size" 14 14
+
+
+#pour recuperer les annotations
+
+```{r}
+#BiocManager::install("biomaRt") # only one time
+
+library(biomaRt)
+mart <- useMart("parasite_mart", dataset = "wbps_gene", host = "https://parasite.wormbase.org", port = 443)
+
+genes_annotation <- getBM(mart = mart,
+                          filters = c("species_id_1010"),
+                          value = list("mebelaprjeb30104"),
+                          attributes = c("wbps_gene_id",
+                                         "caelegprjna13758_gene_name",
+                                         "caelegprjna13758_homolog_ensembl_peptide",
+                                         "interpro_id",
+                                         "interpro_short_description")
+)
+
+```
+
+on test diff param dans genes list pour afficher niveau de significativtié, si upregule ou downregules 
+
+```{r}
+genes_list_1 = subset(res_df, padj < 1e-7 & log2FoldChange >2) %>% rownames_to_column("gene_ID") %>% arrange(padj)
+genes_list_1
+plot_counts(genes_list_1$gene_ID[1:40])
+
+de_genes_with_annot_1 <- subset(genes_annotation, wbps_gene_id %in% genes_list_1$gene_ID)
+de_genes_with_annot_1
+```
+#regarde un tableau et regarde dans l'une des colonnes la gene_ID et filtre que la ligne qui est dans l'autre tableau aussi
+
+#chercher par mot clé dans notre liste : ex ce qui atch avec hexonuclease, transposase helicase..
+
+grep : fct qui cherche pattern ds chaine de caracteres 
+
+ensuite sur prot identifies on peut afficher leur count 
+
+wbps: nom colonne par defaut definie = wormbaseparasite
+
+```{r}
+toMatch = c("exonuclease","transposase","helicase","toto")
+exonuclease_transposase_helicase_de_genes = de_genes_with_annot_1[grep(paste(toMatch,collapse="|"),
+                                                                       de_genes_with_annot_1$interpro_short_description, ignore.case = T),]
+
+exonuclease_transposase_helicase_de_genes
+
+plot_counts(unique(exonuclease_transposase_helicase_de_genes$wbps_gene_id))
+```
+
+
