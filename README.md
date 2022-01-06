@@ -4,11 +4,11 @@ TP NGS 2021: genome elimination in Mesorhabditis belari.
 
 # Biological context
 
-The nematode Mesorhabditis belari is one of several organisms showing a particularly interesting process called "genome elimination". This phenomenon consists of a programmed elimination of the genome during embryonic development that occurs in five events, always in somatic cells, and between cell stages 2 and 15. The part of the genome that is eliminated in somatic cells is always the same and mainly codes for repeated sequences. Thus, a potential explanation for this phenomenon could be that it regulates the expression of repeated elements, but this remains to be studied. 
+The nematode Mesorhabditis belari is one of several organisms showing a particularly interesting process called "genome elimination". This phenomenon consists of a programmed elimination of the genome during embryonic development that occurs in five events, always in somatic cells, and between cell stages 2 and 15. The part of the genome that is eliminated is always the same and mainly codes for repeated sequences. Accordingly, a potential explanation for this phenomenon could be that it regulates the expression of repeated elements, but this remains to be studied. 
 
-Because the genes involved in this genome silencing are not yet known, the project presented here aims to identify these effectors through a transcriptomic screen, comparing the transcriptome of single embryos before, during and after the genome silencing phenomenon. 
+Because the genes involved in this genome elimination are not yet known, the project presented here aims to identify these effectors through a transcriptomic screen, comparing the transcriptome of single embryos before, during and after the genome elimination phenomenon. 
 
-For this purpose, M.belari embryos were sorted according to different developmental stages, the 1 and 2 cell stage before elimination, 4 and 8 cells during elimination, and 8 cells + 5h (about 60 cells) and 8 cells + 7h (about 100 cells) after elimination
+For this purpose, M.belari embryos were sorted according to different developmental stages, the 1 and 2 cell stage before elimination, 4 and 8 cells during elimination, and 8 cells + 5h (around 60 cells) and 8 cells + 7h (around 100 cells) after elimination.
 The mRNAs were extracted from each of the embryos and duplicates were made for each of the six stages producing a total of 12 samples. These 12 samples were then sequenced by Illumina and mapped to the M.belari reference transcriptome.
 
 # File organization
@@ -17,7 +17,7 @@ This project is organized in 4 directories: data, intermediary_results, results,
 
 -> data: contains raw FastQ files obtained from the 12 samples sequencing
 results: not linked to Git
--> intermediary results: contains the index construction from the reference genome, the quality analysis of the raw sequences, the trimming reports and the trimmed samples sequences 
+-> intermediary_results: contains the index construction from the reference genome, the quality analysis of the raw sequences, the trimming reports and the trimmed samples sequences 
 -> results: contains the results from the Kallisto mapping (quantification) 
 -> scripts: contains the different detailed scripts used for our analysis
 
@@ -36,21 +36,30 @@ NB: no need to restart fastqc after fastp as it already generates quality contro
 
 _quality analysis post-cleaning: the reports of all samples were aggregated in one reader-friendly file using the multiqc method.
 
-_Index building for pseudomapping of the sample reads: The first step was to import the annotated M.belari DNA Coding Sequences (CDS) from the WormBase Parasite database:scripts/download_fasta_CDS_belari_for_mapping.sh. The annoted coding sequences (cds) will be used for the index construction.
+_Index building for pseudomapping of the sample reads: The first step was to import the annotated M.belari DNA Coding Sequences (CDS) from the WormBase Parasite database: scripts/download_fasta_CDS_belari_for_mapping.sh. The annoted CDS will be used for the index construction.
 
-_index constrution: construction of a transcription index using kallisto. The index is based on cds (coding sequences) of M.belari, and will be used for the pseudomapping of the samples read : scripts/fastafiles_indexed.sh
+_transcription index constrution: made using kallisto. The index is based on cds  of M.belari, and will be used for the pseudomapping of the samples reads: scripts/fastafiles_indexed.sh
 
-Quantification running: 
+## Quantification running: 
+
 _pseudomapping: Each sample was pseudomapped to the index constructed using kallisto, reads were taken at one end. Arbitrary lengths and standard deviation were first provided based on the sequencing quality analysis. We finally chose a fragment length of 552 and a standard deviation of 200, based on the sequencing report of the Illumina data from IGFL: scripts/quantification.sh
 
-_aggregating report: The pseudo-mapping data from each sample was aggregated into a single file: scripts/aggregated_results.sh. By analyzing the aggregation ratio, a low mapping ratio (less than 30%) was measured. Several hypotheses explaining this phenomenon have been ruled out (such as potential contamination or a poorly annotated genome) but it is possible that the Kallisto parameters themselves impact on the mapping ratio.
+_aggregating: The pseudo-mapping data from each sample was aggregated into a single file: scripts/aggregated_results.sh. By analyzing the aggregation ratio, a low mapping ratio (less than 30%) was measured. Several hypotheses explaining this phenomenon have been ruled out (such as potential contamination or a poorly annotated genome) but it is possible that the Kallisto parameters themselves impact on the mapping ratio.
+
+### Count matrix: 
+
+We created a count matrix, summarizing the number of fragments attributed to each gene for each sample.  
+
+_count matrix analyses: Quantification data were first imported in R with the tximport function. The results of the count table analysis are summarized and explained in the .Rmd file. Sample quality was first analyzed using principal component analysis (PCA). A focus was made on genes showing differential expression (up- or down-regulated) when comparing during and before/after genome removal. Some genes and even some expression patterns (e.g. staircase) were thus revealed and constitute interesting targets to be investigated.The interaction of genes with similar expression profiles was evaluated using the CCSB Interactome Database. 
+
+# Further directions
+
+Some genes with a really interesting expression profile during and around the time of genome silencing were identified, including genes with a nuclease function. A next step could be to knockout these targets to analyze whether the genome silencing process is altered.  
+
+# Credits
+
+This work is based on the project of Carine and her colleagues. It could be carried out thanks to the precious help of Carine, and the supervision of Marie. Finally, the excellent Nina, Louna and Quentin led this work with me. 
 
 
-# JOUR 2
 
-Auj : utilisation de R pour fusionner diff échantillons venant de kallisto : tx import, mais pb pour comparer les echant si on importe nos données brutes de bash : entre echant one st pas sur que ce soit normalisé : meme si on a mis ADN en qtité équimolaire c’est pas sur que ce soit vraiment identique : outil DESeq2 qui permet normaliser données selon un certn modèle et ensuite l’utilise pr faire comparaison 
-
-
-
-_ensutie on fait la PCA: principal compoentn analysis :
 
